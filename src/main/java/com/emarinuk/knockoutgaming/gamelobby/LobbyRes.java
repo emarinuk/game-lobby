@@ -1,14 +1,14 @@
 package com.emarinuk.knockoutgaming.gamelobby;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,10 +21,10 @@ public class LobbyRes {
     @Autowired
     private Lobby lobby;
 
-    //GET /providers
-    //retrieveAllProviders
-    @GetMapping("/lobby")
-    public String retrieveAllProviders() {
+    //POST /upload
+    //loadData
+    @GetMapping("/upload")
+    public void loadData() {
         String csvFile = "c://games.csv";
         BufferedReader br = null;
         String line = "";
@@ -57,6 +57,42 @@ public class LobbyRes {
                 }
             }
         }
+    }
+
+    //GET /lobby
+    //retrieveAllProviders
+    @GetMapping("/lobby")
+    public String retrieveAllProviders() {
         return lobby.retrieveProvidersJSON();
+    }
+
+    //GET /lobby/number/{game}
+    //retrieveNumberOfGames
+    @GetMapping("/lobby/number/{provider}")
+    public String retrieveNumberOfGamesProvider(@PathVariable String provider) {
+        String output = "Provider not found.";
+        Iterator<Provider> myIterator = lobby.getProviders().iterator();
+        while (myIterator.hasNext()) {
+            Provider myProvider = myIterator.next();
+            if(provider.equals(myProvider.getProviderName())){
+                output = "[  {\"provider\":\"" + provider + "\",\"numberOfGames\":\"" +  Integer.toString(myProvider.listAllGames().size()) + "\"}]";
+            }
+        }
+        return  output;
+    }
+
+    //POST /lobby/number
+    //retrieveNumberOfGames
+    @PostMapping("/lobby/")
+    public String retrieveNumberOfGames(@RequestAttribute String provider) {
+        String output = "Provider not found.";
+        Iterator<Provider> myIterator = lobby.getProviders().iterator();
+        while (myIterator.hasNext()) {
+            Provider myProvider = myIterator.next();
+            if(provider.equals(myProvider.getProviderName())){
+                output = "[  {\"provider\":\"" + provider + "\",\"numberOfGames\":\"" +  Integer.toString(myProvider.listAllGames().size()) + "\"}]";
+            }
+        }
+        return  output;
     }
 }
